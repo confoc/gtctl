@@ -66,14 +66,27 @@ type TestData struct {
 var _ = Describe("Basic test of greptimedb cluster", func() {
 	It("Bootstrap cluster", func() {
 		var err error
-		err = createCluster()
-		Expect(err).NotTo(HaveOccurred(), "failed to create cluster")
+		Context("when greptimedb cluster running in k8s", func() {
+			It("test greotimedb cluster in k8s", func() {
+				err = createCluster()
+				Expect(err).NotTo(HaveOccurred(), "failed to create cluster")
 
-		err = getCluster()
-		Expect(err).NotTo(HaveOccurred(), "failed to get cluster")
+				err = getCluster()
+				Expect(err).NotTo(HaveOccurred(), "failed to get cluster")
 
-		err = listCluster()
-		Expect(err).NotTo(HaveOccurred(), "failed to list cluster")
+				err = listCluster()
+				Expect(err).NotTo(HaveOccurred(), "failed to list cluster")
+			})
+		})
+		Context("when greptimedb cluster running in baremetal", func() {
+			It("test greptimedb cluster in baremetal", func() {
+				err = createClusterinBaremetal()
+				Expect(err).NotTo(HaveOccurred(), "failed to create cluster in baremetal")
+
+				err = getClusterinBaremetal()
+				Expect(err).NotTo(HaveOccurred(), "failed to get cluster in baremetal")
+			})
+		})
 
 		go func() {
 			forwardRequest()
@@ -136,8 +149,19 @@ var _ = Describe("Basic test of greptimedb cluster", func() {
 		}
 		Expect(len(data) == testRowIDNum).Should(BeTrue(), "get the wrong data from db")
 
-		err = deleteCluster()
-		Expect(err).NotTo(HaveOccurred(), "failed to delete cluster")
+		Context("when greptimedb cluster running in k8s", func() {
+			It("test greotimedb cluster in k8s", func() {
+				err = deleteCluster()
+				Expect(err).NotTo(HaveOccurred(), "failed to delete cluster")
+			})
+		})
+
+		Context("when greptimedb cluster running in baremetal", func() {
+			It("test greptimedb cluster in baremetal", func() {
+				err = deleteClusterinBaremetal()
+				Expect(err).NotTo(HaveOccurred(), "failed to delete cluster in baremetal")
+			})
+		})
 	})
 })
 
@@ -151,8 +175,28 @@ func createCluster() error {
 	return nil
 }
 
+func createClusterinBaremetal() error {
+	cmd := exec.Command("../../bin/gtctl", "cluster", "create", "mydb", "--timeout", "300", "--bare-metal")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+	return nil
+}
+
 func getCluster() error {
 	cmd := exec.Command("../../bin/gtctl", "cluster", "get", "mydb")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func getClusterinBaremetal() error {
+	cmd := exec.Command("../../bin/gtctl", "cluster", "get", "mydb", "--bare-metal")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
@@ -173,6 +217,16 @@ func listCluster() error {
 
 func deleteCluster() error {
 	cmd := exec.Command("../../bin/gtctl", "cluster", "delete", "mydb", "--tear-down-etcd")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func deleteClusterinBaremetal() error {
+	cmd := exec.Command("../../bin/gtctl", "cluster", "delete", "mydb", "--tear-down-etcd", "--bare-metal")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
