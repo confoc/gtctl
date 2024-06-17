@@ -80,11 +80,14 @@ var _ = Describe("Basic test of greptimedb cluster", func() {
 			Expect(err).NotTo(HaveOccurred(), "failed to create cluster in baremetal")
 		}()
 
-		err = getClusterinBaremetal()
-		Expect(err).NotTo(HaveOccurred(), "failed to get cluster in baremetal")
+		go func() {
 
-		err = deleteClusterinBaremetal()
-		Expect(err).NotTo(HaveOccurred(), "failed to delete cluster in baremetal")
+			err = getClusterinBaremetal()
+			Expect(err).NotTo(HaveOccurred(), "failed to get cluster in baremetal")
+
+			err = deleteClusterinBaremetal()
+			Expect(err).NotTo(HaveOccurred(), "failed to delete cluster in baremetal")
+		}()
 
 		go func() {
 			forwardRequest()
