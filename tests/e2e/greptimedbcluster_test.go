@@ -81,6 +81,7 @@ var _ = Describe("Basic test of greptimedb cluster", func() {
 		}()
 
 		go func() {
+			time.Sleep(100 * time.Second)
 
 			err = getClusterinBaremetal()
 			Expect(err).NotTo(HaveOccurred(), "failed to get cluster in baremetal")
