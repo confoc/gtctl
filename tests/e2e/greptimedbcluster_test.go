@@ -75,8 +75,10 @@ var _ = Describe("Basic test of greptimedb cluster", func() {
 		err = listCluster()
 		Expect(err).NotTo(HaveOccurred(), "failed to list cluster")
 
-		err = createClusterinBaremetal()
-		Expect(err).NotTo(HaveOccurred(), "failed to create cluster in baremetal")
+		go func() {
+			err = createClusterinBaremetal()
+			Expect(err).NotTo(HaveOccurred(), "failed to create cluster in baremetal")
+		}()
 
 		err = getClusterinBaremetal()
 		Expect(err).NotTo(HaveOccurred(), "failed to get cluster in baremetal")
@@ -161,10 +163,7 @@ func createCluster() error {
 }
 
 func createClusterinBaremetal() error {
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-	defer cancel()
-
-	cmd := exec.CommandContext(ctx, "../../bin/gtctl", "cluster", "create", "mydb", "--bare-metal")
+	cmd := exec.Command("../../bin/gtctl", "cluster", "create", "mydb", "--bare-metal")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
