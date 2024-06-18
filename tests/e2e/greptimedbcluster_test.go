@@ -76,21 +76,6 @@ var _ = Describe("Basic test of greptimedb cluster", func() {
 		Expect(err).NotTo(HaveOccurred(), "failed to list cluster")
 
 		go func() {
-			err = createClusterinBaremetal()
-			Expect(err).NotTo(HaveOccurred(), "failed to create cluster in baremetal")
-		}()
-
-		go func() {
-			time.Sleep(100 * time.Second)
-
-			err = getClusterinBaremetal()
-			Expect(err).NotTo(HaveOccurred(), "failed to get cluster in baremetal")
-
-			err = deleteClusterinBaremetal()
-			Expect(err).NotTo(HaveOccurred(), "failed to delete cluster in baremetal")
-		}()
-
-		go func() {
 			forwardRequest()
 		}()
 
@@ -166,28 +151,8 @@ func createCluster() error {
 	return nil
 }
 
-func createClusterinBaremetal() error {
-	cmd := exec.Command("../../bin/gtctl", "cluster", "create", "mydb", "--bare-metal")
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	if err := cmd.Run(); err != nil {
-		return err
-	}
-	return nil
-}
-
 func getCluster() error {
 	cmd := exec.Command("../../bin/gtctl", "cluster", "get", "mydb")
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	if err := cmd.Run(); err != nil {
-		return err
-	}
-	return nil
-}
-
-func getClusterinBaremetal() error {
-	cmd := exec.Command("../../bin/gtctl", "cluster", "get", "mydb", "--bare-metal")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
@@ -208,16 +173,6 @@ func listCluster() error {
 
 func deleteCluster() error {
 	cmd := exec.Command("../../bin/gtctl", "cluster", "delete", "mydb", "--tear-down-etcd")
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	if err := cmd.Run(); err != nil {
-		return err
-	}
-	return nil
-}
-
-func deleteClusterinBaremetal() error {
-	cmd := exec.Command("../../bin/gtctl", "cluster", "delete", "mydb", "--tear-down-etcd", "--bare-metal")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
