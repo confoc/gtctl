@@ -38,7 +38,7 @@ var _ = Describe("Basic test of greptimedb cluster", func() {
 		}()
 
 		for {
-			if conn, err := net.DialTimeout("Http", "localhost:4000", 2*time.Second); err == nil {
+			if conn, err := net.DialTimeout("http", "localhost:4000", 2*time.Second); err == nil {
 				defer conn.Close()
 				break
 			}
@@ -61,6 +61,7 @@ func newCreateClusterinBaremetalCommand() exec.Cmd {
 	cmd.Stderr = os.Stderr
 	return *cmd
 }
+
 func createClusterinBaremetal(cmd exec.Cmd) error {
 	if err := cmd.Run(); err != nil {
 		return err
