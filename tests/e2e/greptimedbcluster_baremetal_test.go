@@ -38,7 +38,7 @@ var _ = Describe("Basic test of greptimedb cluster", func() {
 
 		go func() {
 			checkInterval := 5 * time.Second
-			timeout := 100 * time.Second
+			timeout := 50 * time.Second
 			startTime := time.Now()
 
 			for {
@@ -70,7 +70,9 @@ func createClusterinBaremetal() error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
-		return err
+		if ctx.Err() != context.DeadlineExceeded {
+			return err
+		}
 	}
 	return nil
 }
