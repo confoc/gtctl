@@ -55,22 +55,9 @@ var _ = Describe("Basic test of greptimedb cluster", func() {
 			}
 		}()
 		go func() {
-			checkInterval := 5 * time.Second
-			timeout := 100 * time.Second
-			startTime := time.Now()
-
-			for {
-				if time.Since(startTime) > timeout {
-					Expect(fmt.Errorf("failed to delete cluster in baremetal")).NotTo(HaveOccurred())
-					break
-				}
-
-				err := deleteClusterinBaremetal()
-				if err == nil {
-					break
-				}
-				time.Sleep(checkInterval)
-			}
+			time.Sleep(50 * time.Second)
+			err := deleteClusterinBaremetal()
+			Expect(err).NotTo(HaveOccurred(), "failed to delete cluster in baremetal")
 		}()
 	})
 })
