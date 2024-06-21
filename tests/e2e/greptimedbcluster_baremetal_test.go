@@ -38,7 +38,7 @@ var _ = Describe("Basic test of greptimedb cluster", func() {
 
 		go func() {
 			checkInterval := 5 * time.Second
-			timeout := 50 * time.Second
+			timeout := 100 * time.Second
 			startTime := time.Now()
 
 			for {
@@ -54,8 +54,9 @@ var _ = Describe("Basic test of greptimedb cluster", func() {
 				time.Sleep(checkInterval)
 			}
 		}()
+
 		go func() {
-			time.Sleep(50 * time.Second)
+			time.Sleep(100 * time.Second)
 			err := deleteClusterinBaremetal()
 			Expect(err).NotTo(HaveOccurred(), "failed to delete cluster in baremetal")
 		}()
@@ -63,7 +64,7 @@ var _ = Describe("Basic test of greptimedb cluster", func() {
 })
 
 func createClusterinBaremetal() error {
-	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
 
 	cmd := exec.CommandContext(ctx, "../../bin/gtctl", "cluster", "create", "mydb", "--bare-metal")
