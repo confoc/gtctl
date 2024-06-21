@@ -17,8 +17,7 @@
 package e2e
 
 import (
-	"context"
-	"fmt"
+	"net"
 	"os"
 	"os/exec"
 	"time"
@@ -30,50 +29,40 @@ import (
 var _ = Describe("Basic test of greptimedb cluster", func() {
 	It("Bootstrap cluster", func() {
 		var err error
+		var cmd exec.Cmd
 
 		go func() {
-			err = createClusterinBaremetal()
+			cmd = newCreateClusterinBaremetalCommand()
+			err = createClusterinBaremetal(cmd)
 			Expect(err).NotTo(HaveOccurred(), "failed to create cluster in baremetal")
 		}()
 
-		go func() {
-			checkInterval := 5 * time.Second
-			timeout := 100 * time.Second
-			startTime := time.Now()
-
-			for {
-				if time.Since(startTime) > timeout {
-					Expect(fmt.Errorf("failed to get cluster in baremetal")).NotTo(HaveOccurred())
-					break
-				}
-
-				err := getClusterinBaremetal()
-				if err == nil {
-					break
-				}
-				time.Sleep(checkInterval)
+		for {
+			if conn, err := net.DialTimeout("Http", "localhost:4000", 2*time.Second); err == nil {
+				defer conn.Close()
+				break
 			}
-		}()
+		}
 
-		go func() {
-			time.Sleep(100 * time.Second)
-			err := deleteClusterinBaremetal()
-			Expect(err).NotTo(HaveOccurred(), "failed to delete cluster in baremetal")
-		}()
+		err = getClusterinBaremetal()
+		Expect(err).NotTo(HaveOccurred(), "failed to get cluster in baremetal")
+
+		cmd.Cancel()
+
+		err = deleteClusterinBaremetal()
+		Expect(err).NotTo(HaveOccurred(), "failed to delete cluster in baremetal")
 	})
 })
 
-func createClusterinBaremetal() error {
-	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
-	defer cancel()
-
-	cmd := exec.CommandContext(ctx, "../../bin/gtctl", "cluster", "create", "mydb", "--bare-metal")
+func newCreateClusterinBaremetalCommand() exec.Cmd {
+	cmd := exec.Command("../../bin/gtctl", "cluster", "create", "mydb", "--bare-metal")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
+	return *cmd
+}
+func createClusterinBaremetal(cmd exec.Cmd) error {
 	if err := cmd.Run(); err != nil {
-		if ctx.Err() != context.DeadlineExceeded {
-			return err
-		}
+		return err
 	}
 	return nil
 }
