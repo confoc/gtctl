@@ -33,9 +33,11 @@ import (
 var _ = Describe("Basic test of greptimedb cluster", func() {
 	It("Bootstrap cluster", func() {
 		var err error
+		var createcmd exec.Cmd
 
 		go func() {
-			err = createClusterinBaremetal()
+			createcmd = newCreateClusterinBaremetalCommand()
+			err = runCreateClusterinBaremetalCommand(&createcmd)
 			Expect(err).NotTo(HaveOccurred(), "failed to create cluster in baremetal")
 		}()
 
@@ -124,7 +126,7 @@ var _ = Describe("Basic test of greptimedb cluster", func() {
 					Expect(fmt.Errorf("failed to delete cluster in baremetal")).NotTo(HaveOccurred())
 					break
 				}
-
+				createcmd.Cancel()
 				err := deleteClusterinBaremetal()
 				if err == nil {
 					break
@@ -135,14 +137,18 @@ var _ = Describe("Basic test of greptimedb cluster", func() {
 	})
 })
 
-func createClusterinBaremetal() error {
-	cmd := exec.Command("../../bin/gtctl", "cluster", "create", "mydb", "--bare-metal")
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+func runCreateClusterinBaremetalCommand(cmd *exec.Cmd) error {
 	if err := cmd.Run(); err != nil {
 		return err
 	}
 	return nil
+}
+
+func newCreateClusterinBaremetalCommand() exec.Cmd {
+	cmd := exec.Command("../../bin/gtctl", "cluster", "create", "mydb", "--bare-metal")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return *cmd
 }
 
 func getClusterinBaremetal() error {
