@@ -46,11 +46,9 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", func() {
 		err = getClusterinBaremetal()
 		Expect(err).NotTo(HaveOccurred(), "failed to get cluster in baremetal")
 
-		if cmd != nil && cmd.Process != nil {
+		if cmd.Process != nil {
 			err = cmd.Process.Kill()
 			Expect(err).NotTo(HaveOccurred(), "failed to kill create cluster process")
-		} else if cmd == nil {
-			Fail("command is not properly initialized")
 		} else {
 			Fail("process is not properly initialized")
 		}
@@ -60,14 +58,14 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", func() {
 	})
 })
 
-func newCreateClusterinBaremetalCommand() *exec.Cmd {
+func newCreateClusterinBaremetalCommand() exec.Cmd {
 	cmd := exec.Command("../../bin/gtctl", "cluster", "create", "mydb", "--bare-metal")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	return cmd
+	return *cmd
 }
 
-func createClusterinBaremetal(cmd *exec.Cmd) error {
+func createClusterinBaremetal(cmd exec.Cmd) error {
 	if err := cmd.Run(); err != nil {
 		return err
 	}
