@@ -54,9 +54,6 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", func() {
 			}
 		}()
 
-		err = cmd.Wait()
-		Expect(err).NotTo(HaveOccurred(), "failed to wait for create cluster process")
-
 		err = deleteClusterinBaremetal()
 		Expect(err).NotTo(HaveOccurred(), "failed to delete cluster in baremetal")
 	})
