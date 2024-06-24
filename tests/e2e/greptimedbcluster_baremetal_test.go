@@ -29,7 +29,7 @@ import (
 var _ = Describe("Basic test of greptimedb cluster in baremetal", func() {
 	It("Bootstrap cluster in baremteal", func() {
 		var err error
-		var cmd exec.Cmd
+		var cmd *exec.Cmd
 
 		go func() {
 			cmd = newCreateClusterinBaremetalCommand()
@@ -55,14 +55,14 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", func() {
 	})
 })
 
-func newCreateClusterinBaremetalCommand() exec.Cmd {
+func newCreateClusterinBaremetalCommand() *exec.Cmd {
 	cmd := exec.Command("../../bin/gtctl", "cluster", "create", "mydb", "--bare-metal")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	return *cmd
+	return cmd
 }
 
-func createClusterinBaremetal(cmd exec.Cmd) error {
+func createClusterinBaremetal(cmd *exec.Cmd) error {
 	if err := cmd.Run(); err != nil {
 		return err
 	}
