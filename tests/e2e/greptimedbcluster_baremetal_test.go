@@ -54,9 +54,9 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", func() {
 		err = createcmd.Wait()
 		err = createcmd.Wait()
 		if err != nil {
-			GinkgoWriter.Printf("Process with PID %d terminated with error: %v\n", cmd.Process.Pid, err)
+			GinkgoWriter.Printf("Process with PID %d terminated with error: %v\n", createcmd.Process.Pid, err)
 		} else {
-			GinkgoWriter.Printf("Process with PID %d terminated successfully\n", cmd.Process.Pid)
+			GinkgoWriter.Printf("Process with PID %d terminated successfully\n", createcmd.Process.Pid)
 		}
 
 		err = deleteClusterinBaremetal()
