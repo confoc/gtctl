@@ -26,8 +26,8 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Basic test of greptimedb cluster", func() {
-	It("Bootstrap cluster", func() {
+var _ = Describe("Basic test of greptimedb cluster in baremetal", func() {
+	It("Bootstrap cluster in baremteal", func() {
 		var err error
 		var cmd exec.Cmd
 
@@ -47,13 +47,8 @@ var _ = Describe("Basic test of greptimedb cluster", func() {
 		err = getClusterinBaremetal()
 		Expect(err).NotTo(HaveOccurred(), "failed to get cluster in baremetal")
 
-		for {
-			if cmd.Process != nil {
-				err = cmd.Process.Kill()
-				Expect(err).NotTo(HaveOccurred(), "failed to exit create cluster process")
-				break
-			}
-		}
+		err = cmd.Cancel()
+		Expect(err).NotTo(HaveOccurred(), "failed to kill create cluster process")
 
 		err = deleteClusterinBaremetal()
 		Expect(err).NotTo(HaveOccurred(), "failed to delete cluster in baremetal")
