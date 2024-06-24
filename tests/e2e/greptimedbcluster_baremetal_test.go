@@ -31,10 +31,8 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", func() {
 		var err error
 		cmd := newCreateClusterinBaremetalCommand()
 
-		go func() {
-			err = createClusterinBaremetal(cmd)
-			Expect(err).NotTo(HaveOccurred(), "failed to create cluster in baremetal")
-		}()
+		err = cmd.Start()
+		Expect(err).NotTo(HaveOccurred(), "failed to create cluster in baremetal")
 
 		for {
 			if conn, err := net.DialTimeout("tcp", "localhost:4000", 2*time.Second); err == nil {
