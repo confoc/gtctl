@@ -46,8 +46,12 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", func() {
 		err = getClusterinBaremetal()
 		Expect(err).NotTo(HaveOccurred(), "failed to get cluster in baremetal")
 
-		err = cmd.Cancel()
-		Expect(err).NotTo(HaveOccurred(), "failed to kill create cluster process")
+		if cmd.Process != nil {
+			err = cmd.Process.Kill()
+			Expect(err).NotTo(HaveOccurred(), "failed to kill create cluster process")
+		} else {
+			Fail("command process is not properly initialized")
+		}
 
 		err = deleteClusterinBaremetal()
 		Expect(err).NotTo(HaveOccurred(), "failed to delete cluster in baremetal")
