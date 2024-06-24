@@ -34,25 +34,22 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", func() {
 		err = cmd.Start()
 		Expect(err).NotTo(HaveOccurred(), "failed to create cluster in baremetal")
 
-		go func() {
-			// 轮询检测端口是否连接成功
-			for {
-				if conn, err := net.DialTimeout("tcp", "localhost:4000", 2*time.Second); err == nil {
-					defer conn.Close()
-					break
-				}
+		for {
+			if conn, err := net.DialTimeout("tcp", "localhost:4000", 2*time.Second); err == nil {
+				defer conn.Close()
+				break
 			}
+		}
 
-			err = getClusterinBaremetal()
-			Expect(err).NotTo(HaveOccurred(), "failed to get cluster in baremetal")
+		err = getClusterinBaremetal()
+		Expect(err).NotTo(HaveOccurred(), "failed to get cluster in baremetal")
 
-			if cmd.Process != nil {
-				err = cmd.Process.Kill()
-				Expect(err).NotTo(HaveOccurred(), "failed to kill create cluster process")
-			} else {
-				Fail("process is not properly initialized")
-			}
-		}()
+		if cmd.Process != nil {
+			err = cmd.Process.Kill()
+			Expect(err).NotTo(HaveOccurred(), "failed to kill create cluster process")
+		} else {
+			Fail("process is not properly initialized")
+		}
 
 		err = deleteClusterinBaremetal()
 		Expect(err).NotTo(HaveOccurred(), "failed to delete cluster in baremetal")
