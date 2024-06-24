@@ -29,10 +29,9 @@ import (
 var _ = Describe("Basic test of greptimedb cluster in baremetal", func() {
 	It("Bootstrap cluster in baremteal", func() {
 		var err error
-		var cmd *exec.Cmd
+		cmd := newCreateClusterinBaremetalCommand()
 
 		go func() {
-			cmd = newCreateClusterinBaremetalCommand()
 			err = createClusterinBaremetal(cmd)
 			Expect(err).NotTo(HaveOccurred(), "failed to create cluster in baremetal")
 		}()
