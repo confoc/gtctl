@@ -29,9 +29,9 @@ import (
 var _ = Describe("Basic test of greptimedb cluster in baremetal", func() {
 	It("Bootstrap cluster in baremteal", func() {
 		var err error
-		cmd := newCreateClusterinBaremetalCommand()
+		createcmd := newCreateClusterinBaremetalCommand()
 
-		err = cmd.Start()
+		err = createcmd.Start()
 		Expect(err).NotTo(HaveOccurred(), "failed to create cluster in baremetal")
 
 		for {
@@ -44,16 +44,14 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", func() {
 		err = getClusterinBaremetal()
 		Expect(err).NotTo(HaveOccurred(), "failed to get cluster in baremetal")
 
-		if cmd.Process != nil {
-			err = cmd.Process.Kill()
+		if createcmd.Process != nil {
+			err = createcmd.Process.Kill()
 			Expect(err).NotTo(HaveOccurred(), "failed to kill create cluster process")
 		} else {
 			Fail("process is not properly initialized")
 		}
 
-		time.Sleep(2 * time.Second)
-
-		err = cmd.Wait()
+		err = createcmd.Wait()
 		Expect(err).NotTo(HaveOccurred(), "failed to wait process to be killed")
 
 		err = deleteClusterinBaremetal()
