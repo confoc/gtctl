@@ -66,7 +66,7 @@ func newCreateClusterinBaremetalCommand() exec.Cmd {
 }
 
 func createClusterinBaremetal(cmd exec.Cmd) error {
-	if err := cmd.Run(); err != nil {
+	if err := cmd.Start(); err != nil {
 		return err
 	}
 	return nil
