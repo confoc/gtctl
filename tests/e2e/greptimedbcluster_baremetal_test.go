@@ -54,11 +54,7 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", func() {
 		time.Sleep(2 * time.Second)
 
 		err = cmd.Wait()
-		if err != nil {
-			GinkgoWriter.Printf("Process with PID %d terminated with error: %v\n", cmd.Process.Pid, err)
-		} else {
-			GinkgoWriter.Printf("Process with PID %d terminated successfully\n", cmd.Process.Pid)
-		}
+		Expect(err).NotTo(HaveOccurred(), "failed to wait process to be killed")
 
 		err = deleteClusterinBaremetal()
 		Expect(err).NotTo(HaveOccurred(), "failed to delete cluster in baremetal")
@@ -70,13 +66,6 @@ func newCreateClusterinBaremetalCommand() exec.Cmd {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return *cmd
-}
-
-func createClusterinBaremetal(cmd exec.Cmd) error {
-	if err := cmd.Start(); err != nil {
-		return err
-	}
-	return nil
 }
 
 func getClusterinBaremetal() error {
