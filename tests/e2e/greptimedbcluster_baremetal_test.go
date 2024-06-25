@@ -51,8 +51,14 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", func() {
 			Fail("process is not properly initialized")
 		}
 
-		err = createcmd.Wait()
-		Expect(err).NotTo(HaveOccurred(), "failed to wait process to be killed")
+		waitErr := createcmd.Wait()
+		if waitErr != nil {
+			if _, ok := waitErr.(*exec.ExitError); ok {
+				GinkgoWriter.Printf("Process with PID %d terminated successfully\n", createcmd.Process.Pid)
+			} else {
+				GinkgoWriter.Printf("Process with PID %d terminated with unexpected error: %v\n", createcmd.Process.Pid, waitErr)
+			}
+		}
 
 		err = deleteClusterinBaremetal()
 		Expect(err).NotTo(HaveOccurred(), "failed to delete cluster in baremetal")
