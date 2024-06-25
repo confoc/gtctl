@@ -33,10 +33,10 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", func() {
 
 		err = createcmd.Start()
 		Expect(err).NotTo(HaveOccurred(), "failed to create cluster in baremetal")
+		GinkgoWriter.Printf("the create action is succeeded\n")
 
 		for {
 			if conn, err := net.DialTimeout("tcp", "localhost:4000", 2*time.Second); err == nil {
-				GinkgoWriter.Printf("the create action is succeeded\n")
 				defer conn.Close()
 				break
 			}
