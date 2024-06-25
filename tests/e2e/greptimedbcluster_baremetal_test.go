@@ -36,6 +36,7 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", func() {
 
 		for {
 			if conn, err := net.DialTimeout("tcp", "localhost:4000", 2*time.Second); err == nil {
+				GinkgoWriter.Printf("the create action is successed\n")
 				defer conn.Close()
 				break
 			}
