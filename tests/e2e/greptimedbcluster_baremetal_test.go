@@ -30,10 +30,10 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", func() {
 	It("Bootstrap cluster in baremteal", func() {
 		var err error
 		createcmd := newCreateClusterinBaremetalCommand()
-
-		err = createcmd.Start()
-		Expect(err).NotTo(HaveOccurred(), "failed to create cluster in baremetal")
-
+		go func() {
+			err = createcmd.Run()
+			Expect(err).NotTo(HaveOccurred(), "failed to create cluster in baremetal")
+		}()
 		for {
 			if conn, err := net.DialTimeout("tcp", "localhost:4000", 2*time.Second); err == nil {
 				defer conn.Close()

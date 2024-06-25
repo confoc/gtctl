@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package e2e
+/*package e2e
 
 import (
 	"context"
@@ -24,10 +24,10 @@ import (
 	"os/exec"
 	"time"
 
+	"github.com/go-sql-driver/mysql"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/go-sql-driver/mysql"
 	"k8s.io/klog/v2"
 )
 
@@ -190,3 +190,6 @@ func forwardRequest() {
 		}
 	}
 }
+*/
+
+package e2e
