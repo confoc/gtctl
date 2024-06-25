@@ -36,7 +36,7 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", func() {
 
 		for {
 			if conn, err := net.DialTimeout("tcp", "localhost:4000", 2*time.Second); err == nil {
-				GinkgoWriter.Printf("The create action is succeeded\n")
+				GinkgoWriter.Printf("the create action is succeeded\n")
 				defer conn.Close()
 				break
 			}
@@ -55,12 +55,12 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", func() {
 		waitErr := createcmd.Wait()
 		if waitErr != nil {
 			if exitErr, ok := waitErr.(*exec.ExitError); ok {
-				GinkgoWriter.Printf("Process was killed with signal: %v\n", exitErr)
+				GinkgoWriter.Printf("process was killed with signal: %v\n", exitErr)
 			} else {
-				GinkgoWriter.Printf("Process terminated with error: %v\n", waitErr)
+				GinkgoWriter.Printf("process terminated with error: %v\n", waitErr)
 			}
 		} else {
-			GinkgoWriter.Printf("Process terminated successfully\n")
+			GinkgoWriter.Printf("process terminated successfully\n")
 		}
 
 		err = deleteClusterinBaremetal()
@@ -69,14 +69,14 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", func() {
 })
 
 func newCreateClusterinBaremetalCommand() exec.Cmd {
-	cmd := exec.Command("../../bin/gtctl", "cluster", "create", "mydb", "--bare-metal")
+	cmd := exec.Command("../../bin/gtctl", "cluster", "create", "mycluster", "--bare-metal")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return *cmd
 }
 
 func getClusterinBaremetal() error {
-	cmd := exec.Command("../../bin/gtctl", "cluster", "get", "mydb", "--bare-metal")
+	cmd := exec.Command("../../bin/gtctl", "cluster", "get", "mycluster", "--bare-metal")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
@@ -86,7 +86,7 @@ func getClusterinBaremetal() error {
 }
 
 func deleteClusterinBaremetal() error {
-	cmd := exec.Command("../../bin/gtctl", "cluster", "delete", "mydb", "--tear-down-etcd", "--bare-metal")
+	cmd := exec.Command("../../bin/gtctl", "cluster", "delete", "mycluster", "--tear-down-etcd", "--bare-metal")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
