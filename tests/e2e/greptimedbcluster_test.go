@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-/*package e2e
+package e2e
 
 import (
 	"context"
@@ -190,6 +190,3 @@ func forwardRequest() {
 		}
 	}
 }
-*/
-
-package e2e
