@@ -33,7 +33,6 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", func() {
 
 		err = createcmd.Start()
 		Expect(err).NotTo(HaveOccurred(), "failed to create cluster in baremetal")
-		GinkgoWriter.Printf("the create action is succeeded\n")
 
 		for {
 			if conn, err := net.DialTimeout("tcp", "localhost:4000", 2*time.Second); err == nil {
@@ -52,16 +51,8 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", func() {
 			Fail("process is not properly initialized")
 		}
 
-		waitErr := createcmd.Wait()
-		if waitErr != nil {
-			if exitErr, ok := waitErr.(*exec.ExitError); ok {
-				GinkgoWriter.Printf("process was killed with signal: %v\n", exitErr)
-			} else {
-				GinkgoWriter.Printf("process terminated with error: %v\n", waitErr)
-			}
-		} else {
-			GinkgoWriter.Printf("process terminated successfully\n")
-		}
+		err = createcmd.Wait()
+		Expect(err).To(HaveOccurred(), "process is terminated sucessfully")
 
 		err = deleteClusterinBaremetal()
 		Expect(err).NotTo(HaveOccurred(), "failed to delete cluster in baremetal")
