@@ -56,7 +56,7 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", func() {
 			if _, ok := waitErr.(*exec.ExitError); ok {
 				GinkgoWriter.Printf("Process terminated successfully\n")
 			} else {
-				GinkgoWriter.Printf("Proces terminated with unexpected error: %v\n", waitErr)
+				GinkgoWriter.Printf("Process terminated with error: %v\n", waitErr)
 			}
 		}
 
