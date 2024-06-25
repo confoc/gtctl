@@ -52,7 +52,7 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", func() {
 		}
 
 		err = createcmd.Wait()
-		Expect(err).To(HaveOccurred(), "process is terminated sucessfully")
+		Expect(err).To(HaveOccurred(), "process is terminated successfully")
 
 		err = deleteClusterinBaremetal()
 		Expect(err).NotTo(HaveOccurred(), "failed to delete cluster in baremetal")
