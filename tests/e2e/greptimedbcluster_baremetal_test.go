@@ -54,9 +54,9 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", func() {
 		waitErr := createcmd.Wait()
 		if waitErr != nil {
 			if _, ok := waitErr.(*exec.ExitError); ok {
-				GinkgoWriter.Printf("Process with PID %d terminated successfully\n", createcmd.Process.Pid)
+				GinkgoWriter.Printf("Process terminated successfully\n")
 			} else {
-				GinkgoWriter.Printf("Process with PID %d terminated with unexpected error: %v\n", createcmd.Process.Pid, waitErr)
+				GinkgoWriter.Printf("Process terminated with unexpected error: %v\n", waitErr)
 			}
 		}
 
