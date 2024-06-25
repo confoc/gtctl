@@ -58,6 +58,8 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", func() {
 			} else {
 				GinkgoWriter.Printf("Process terminated with error: %v\n", waitErr)
 			}
+		} else {
+			GinkgoWriter.Printf("Process terminated with error:")
 		}
 
 		err = deleteClusterinBaremetal()
