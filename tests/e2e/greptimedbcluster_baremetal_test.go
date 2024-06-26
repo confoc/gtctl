@@ -52,10 +52,14 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", func() {
 		}
 
 		err = createcmd.Wait()
-		if _, ok := err.(*exec.ExitError); ok {
-			GinkgoWriter.Printf("the process is terminated successfully\n")
+		if err != nil {
+			if exitErr, ok := err.(*exec.ExitError); ok {
+				GinkgoWriter.Printf("Process was killed with signal: %v,the process is terminated successfully\n", exitErr)
+			} else {
+				GinkgoWriter.Printf("Process terminated with error: %v,failed to terminater the process\n", err)
+			}
 		} else {
-			GinkgoWriter.Printf("failed to terminate the process\n")
+			GinkgoWriter.Printf("failed to terminater the process\n")
 		}
 
 		err = deleteClusterinBaremetal()
