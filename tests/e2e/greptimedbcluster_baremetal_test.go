@@ -17,6 +17,8 @@
 package e2e
 
 import (
+	"fmt"
+	"io"
 	"net"
 	"os"
 	"os/exec"
@@ -39,6 +41,18 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", func() {
 				defer conn.Close()
 				break
 			}
+		}
+
+		logFile, err := os.Open("/home/.gtctl/mycluster/logs/frontend.0/log")
+		if err != nil {
+			fmt.Printf("Failed to open log file: %v\n", err)
+			return
+		}
+		defer logFile.Close()
+
+		// 将文件内容拷贝到标准输出
+		if _, err := io.Copy(os.Stdout, logFile); err != nil {
+			fmt.Printf("Failed to copy log file content to stdout: %v\n", err)
 		}
 
 		err = getClusterinBaremetal()
