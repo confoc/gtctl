@@ -62,7 +62,7 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", func() {
 			err = createcmd.Process.Kill()
 			Expect(err).NotTo(HaveOccurred(), "failed to kill create cluster process")
 		} else {
-			Fail("process is not properly initialized")
+			Fail("Process is not properly initialized")
 		}
 
 		err = createcmd.Wait()
