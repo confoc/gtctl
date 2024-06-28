@@ -86,7 +86,7 @@ var _ = Describe("Basic test of greptimedb cluster", func() {
 		Eventually(func() error {
 			cfg := mysql.Config{
 				Net:                  "tcp",
-				Addr:                 "127.0.0.1:4002",
+				Addr:                 "127.0.0.1:4003",
 				User:                 "",
 				Passwd:               "",
 				DBName:               "",
@@ -183,7 +183,7 @@ func deleteCluster() error {
 
 func forwardRequest() {
 	for {
-		cmd := exec.Command("kubectl", "port-forward", "svc/mydb-frontend", "4002:4002")
+		cmd := exec.Command("kubectl", "port-forward", "svc/mydb-frontend", "4003:4003")
 		if err := cmd.Run(); err != nil {
 			klog.Errorf("Failed to port forward: %v", err)
 			return
