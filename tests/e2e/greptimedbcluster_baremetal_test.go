@@ -43,6 +43,9 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", func() {
 			}
 		}
 
+		err = getClusterinBaremetal()
+		Expect(err).NotTo(HaveOccurred(), "failed to get cluster in baremetal")
+
 		logFile, err := os.Open("/home/runner/.gtctl/mycluster/logs/frontend.0/log")
 		if err != nil {
 			fmt.Printf("Failed to open log file: %v\n", err)
@@ -54,9 +57,6 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", func() {
 		if _, err := io.Copy(os.Stdout, logFile); err != nil {
 			fmt.Printf("Failed to copy log file content to stdout: %v\n", err)
 		}
-
-		err = getClusterinBaremetal()
-		Expect(err).NotTo(HaveOccurred(), "failed to get cluster in baremetal")
 
 		if createcmd.Process != nil {
 			err = createcmd.Process.Kill()
