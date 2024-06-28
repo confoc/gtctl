@@ -43,7 +43,7 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", func() {
 			}
 		}
 
-		logFile, err := os.Open("/home/.gtctl/mycluster/logs/frontend.0/log")
+		logFile, err := os.Open("/home/runner/.gtctl/mycluster/logs/frontend.0/log")
 		if err != nil {
 			fmt.Printf("Failed to open log file: %v\n", err)
 			return
