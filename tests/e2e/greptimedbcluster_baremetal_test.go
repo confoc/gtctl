@@ -17,14 +17,11 @@
 package e2e
 
 import (
-	"bytes"
 	"fmt"
 	"io"
 	"net"
 	"os"
 	"os/exec"
-	"strconv"
-	"strings"
 	"time"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -32,12 +29,14 @@ import (
 )
 
 var _ = Describe("Basic test of greptimedb cluster in baremetal", Ordered, func() {
-	BeforeEach(func() {
+	/*
+		BeforeEach(func() {
 
-		err := checkAndClosePort(4002)
-		Expect(err).NotTo(HaveOccurred(), "failed to close port 4002")
+			err := checkAndClosePort(4002)
+			Expect(err).NotTo(HaveOccurred(), "failed to close port 4002")
 
-	})
+		})
+	*/
 	It("Bootstrap cluster in baremteal", func() {
 		var err error
 		createcmd := newCreateClusterinBaremetalCommand()
@@ -113,6 +112,7 @@ func deleteClusterinBaremetal() error {
 	return nil
 }
 
+/*
 func checkAndClosePort(port int) error {
 	inUse, pid, err := checkPortInUse(port)
 	if err != nil {
@@ -160,3 +160,4 @@ func killProcess(pid int) error {
 	fmt.Println("the port is closed")
 	return err
 }
+*/

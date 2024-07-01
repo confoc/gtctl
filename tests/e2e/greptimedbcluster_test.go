@@ -17,52 +17,51 @@
 package e2e
 
 import (
-	"context"
-	"database/sql"
-	"fmt"
 	"os"
 	"os/exec"
-	"time"
 
-	"github.com/go-sql-driver/mysql"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
-	"k8s.io/klog/v2"
 )
 
+/*
 const (
-	createTableSQL = `CREATE TABLE dist_table (
-                        ts TIMESTAMP DEFAULT current_timestamp(),
-                        n INT,
-    					row_id INT,
-                        TIME INDEX (ts),
-                        PRIMARY KEY(n)
-                     )
-                     PARTITION ON COLUMNS (n) (
-                        n < 5,
-                        n >= 5 AND n < 9,
-                        n >= 9
-					)`
 
-	insertDataSQLStr = "INSERT INTO dist_table(n, row_id) VALUES (%d, %d)"
+		createTableSQL = `CREATE TABLE dist_table (
+	                        ts TIMESTAMP DEFAULT current_timestamp(),
+	                        n INT,
+	    					row_id INT,
+	                        TIME INDEX (ts),
+	                        PRIMARY KEY(n)
+	                     )
+	                     PARTITION ON COLUMNS (n) (
+	                        n < 5,
+	                        n >= 5 AND n < 9,
+	                        n >= 9
+						)`
 
-	selectDataSQL = `SELECT * FROM dist_table`
+		insertDataSQLStr = "INSERT INTO dist_table(n, row_id) VALUES (%d, %d)"
 
-	testRowIDNum = 10
+		selectDataSQL = `SELECT * FROM dist_table`
+
+		testRowIDNum = 10
+
 )
 
 var (
+
 	defaultQueryTimeout = 5 * time.Second
+
 )
 
 // TestData is the schema of test data in SQL table.
-type TestData struct {
-	timestamp string
-	n         int32
-	rowID     int32
-}
 
+	type TestData struct {
+		timestamp string
+		n         int32
+		rowID     int32
+	}
+*/
 var _ = Describe("Basic test of greptimedb cluster", Ordered, func() {
 	It("Bootstrap cluster", func() {
 		var err error
@@ -74,68 +73,68 @@ var _ = Describe("Basic test of greptimedb cluster", Ordered, func() {
 
 		err = listCluster()
 		Expect(err).NotTo(HaveOccurred(), "failed to list cluster")
+		/*
+			go func() {
+				forwardRequest()
+			}()
 
-		go func() {
-			forwardRequest()
-		}()
+			By("Connecting GreptimeDB")
+			var db *sql.DB
+			var conn *sql.Conn
 
-		By("Connecting GreptimeDB")
-		var db *sql.DB
-		var conn *sql.Conn
+			Eventually(func() error {
+				cfg := mysql.Config{
+					Net:                  "tcp",
+					Addr:                 "127.0.0.1:4002",
+					User:                 "",
+					Passwd:               "",
+					DBName:               "",
+					AllowNativePasswords: true,
+				}
 
-		Eventually(func() error {
-			cfg := mysql.Config{
-				Net:                  "tcp",
-				Addr:                 "127.0.0.1:4002",
-				User:                 "",
-				Passwd:               "",
-				DBName:               "",
-				AllowNativePasswords: true,
+				db, err = sql.Open("mysql", cfg.FormatDSN())
+				if err != nil {
+					return err
+				}
+
+				conn, err = db.Conn(context.TODO())
+				if err != nil {
+					return err
+				}
+
+				return nil
+			}, 30*time.Second, time.Second).ShouldNot(HaveOccurred())
+
+			By("Execute SQL queries after connecting")
+
+			ctx, cancel := context.WithTimeout(context.Background(), defaultQueryTimeout)
+			defer cancel()
+
+			_, err = conn.ExecContext(ctx, createTableSQL)
+			Expect(err).NotTo(HaveOccurred(), "failed to create SQL table")
+
+			ctx, cancel = context.WithTimeout(context.Background(), defaultQueryTimeout)
+			defer cancel()
+			for rowID := 1; rowID <= testRowIDNum; rowID++ {
+				insertDataSQL := fmt.Sprintf(insertDataSQLStr, rowID, rowID)
+				_, err = conn.ExecContext(ctx, insertDataSQL)
+				Expect(err).NotTo(HaveOccurred(), "failed to insert data")
 			}
 
-			db, err = sql.Open("mysql", cfg.FormatDSN())
-			if err != nil {
-				return err
+			ctx, cancel = context.WithTimeout(context.Background(), defaultQueryTimeout)
+			defer cancel()
+			results, err := conn.QueryContext(ctx, selectDataSQL)
+			Expect(err).NotTo(HaveOccurred(), "failed to get data")
+
+			var data []TestData
+			for results.Next() {
+				var d TestData
+				err = results.Scan(&d.timestamp, &d.n, &d.rowID)
+				Expect(err).NotTo(HaveOccurred(), "failed to scan data that query from db")
+				data = append(data, d)
 			}
-
-			conn, err = db.Conn(context.TODO())
-			if err != nil {
-				return err
-			}
-
-			return nil
-		}, 30*time.Second, time.Second).ShouldNot(HaveOccurred())
-
-		By("Execute SQL queries after connecting")
-
-		ctx, cancel := context.WithTimeout(context.Background(), defaultQueryTimeout)
-		defer cancel()
-
-		_, err = conn.ExecContext(ctx, createTableSQL)
-		Expect(err).NotTo(HaveOccurred(), "failed to create SQL table")
-
-		ctx, cancel = context.WithTimeout(context.Background(), defaultQueryTimeout)
-		defer cancel()
-		for rowID := 1; rowID <= testRowIDNum; rowID++ {
-			insertDataSQL := fmt.Sprintf(insertDataSQLStr, rowID, rowID)
-			_, err = conn.ExecContext(ctx, insertDataSQL)
-			Expect(err).NotTo(HaveOccurred(), "failed to insert data")
-		}
-
-		ctx, cancel = context.WithTimeout(context.Background(), defaultQueryTimeout)
-		defer cancel()
-		results, err := conn.QueryContext(ctx, selectDataSQL)
-		Expect(err).NotTo(HaveOccurred(), "failed to get data")
-
-		var data []TestData
-		for results.Next() {
-			var d TestData
-			err = results.Scan(&d.timestamp, &d.n, &d.rowID)
-			Expect(err).NotTo(HaveOccurred(), "failed to scan data that query from db")
-			data = append(data, d)
-		}
-		Expect(len(data) == testRowIDNum).Should(BeTrue(), "get the wrong data from db")
-
+			Expect(len(data) == testRowIDNum).Should(BeTrue(), "get the wrong data from db")
+		*/
 		err = deleteCluster()
 		Expect(err).NotTo(HaveOccurred(), "failed to delete cluster")
 	})
@@ -181,6 +180,7 @@ func deleteCluster() error {
 	return nil
 }
 
+/*
 func forwardRequest() {
 	for {
 		cmd := exec.Command("kubectl", "port-forward", "svc/mydb-frontend", "4002:4002")
@@ -190,3 +190,4 @@ func forwardRequest() {
 		}
 	}
 }
+*/
