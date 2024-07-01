@@ -183,7 +183,7 @@ func deleteCluster() error {
 
 func forwardRequest() {
 	for {
-		cmd := exec.Command("kubectl", "port-forward", "svc/mydb-frontend", "4003:4003")
+		cmd := exec.Command("kubectl", "port-forward", "svc/mydb-frontend", "4002:4002")
 		if err := cmd.Run(); err != nil {
 			klog.Errorf("Failed to port forward: %v", err)
 			return
