@@ -145,7 +145,9 @@ func checkPortInUse(port int) (bool, int, error) {
 // killProcess kills a process by its PID
 func killProcess(pid int) error {
 	cmd := exec.Command("kill", "-9", strconv.Itoa(pid))
-	return cmd.Run()
+	err := cmd.Run()
+	fmt.Println("the port 4002 is closed")
+	return err
 }
 
 // checkAndClosePort checks if a port is in use and closes it
