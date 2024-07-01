@@ -63,7 +63,7 @@ type TestData struct {
 	rowID     int32
 }
 
-var _ = Describe("Basic test of greptimedb cluster", func() {
+var _ = Describe("Basic test of greptimedb cluster", Ordered, func() {
 	It("Bootstrap cluster", func() {
 		var err error
 		err = createCluster()
@@ -86,7 +86,7 @@ var _ = Describe("Basic test of greptimedb cluster", func() {
 		Eventually(func() error {
 			cfg := mysql.Config{
 				Net:                  "tcp",
-				Addr:                 "127.0.0.1:4003",
+				Addr:                 "127.0.0.1:4002",
 				User:                 "",
 				Passwd:               "",
 				DBName:               "",

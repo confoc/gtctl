@@ -17,18 +17,28 @@
 package e2e
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"net"
 	"os"
 	"os/exec"
+	"strconv"
+	"strings"
 	"time"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Basic test of greptimedb cluster in baremetal", func() {
+var _ = Describe("Basic test of greptimedb cluster in baremetal", Ordered, func() {
+	BeforeEach(func() {
+		ports := []int{4000, 4001, 4002, 4003}
+		for _, port := range ports {
+			err := checkAndClosePort(port)
+			Expect(err).NotTo(HaveOccurred(), fmt.Sprintf("failed to close port %d", port))
+		}
+	})
 	It("Bootstrap cluster in baremteal", func() {
 		var err error
 		createcmd := newCreateClusterinBaremetalCommand()
@@ -105,5 +115,53 @@ func deleteClusterinBaremetal() error {
 	if err := cmd.Run(); err != nil {
 		return err
 	}
+	return nil
+}
+
+func checkPortInUse(port int) (bool, int, error) {
+	cmd := exec.Command("lsof", "-i", fmt.Sprintf(":%d", port))
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	err := cmd.Run()
+	if err != nil {
+		return false, 0, err
+	}
+
+	if out.Len() == 0 {
+		return false, 0, nil
+	}
+
+	lines := strings.Split(out.String(), "\n")
+	if len(lines) > 1 {
+		fields := strings.Fields(lines[1])
+		if len(fields) > 1 {
+			pid, err := strconv.Atoi(fields[1])
+			if err != nil {
+				return false, 0, err
+			}
+			return true, pid, nil
+		}
+	}
+	return false, 0, nil
+}
+
+// killProcess kills a process by its PID
+func killProcess(pid int) error {
+	cmd := exec.Command("kill", "-9", strconv.Itoa(pid))
+	return cmd.Run()
+}
+
+// checkAndClosePort checks if a port is in use and closes it
+func checkAndClosePort(port int) error {
+	inUse, pid, err := checkPortInUse(port)
+	if err != nil {
+		return err
+	}
+
+	if inUse {
+		fmt.Printf("Port %d is in use by process %d, terminating process\n", port, pid)
+		return killProcess(pid)
+	}
+	fmt.Printf("Port %d is not in use\n", port)
 	return nil
 }
