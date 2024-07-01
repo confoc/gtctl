@@ -27,8 +27,6 @@ import (
 	"github.com/go-sql-driver/mysql"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
-	"k8s.io/klog/v2"
 )
 
 const (
@@ -67,7 +65,7 @@ type TestData struct {
 var _ = Describe("Basic test of greptimedb cluster", Ordered, func() {
 	It("Bootstrap cluster", func() {
 		var err error
-		sig := true
+		//		sig := true
 		err = createCluster()
 		Expect(err).NotTo(HaveOccurred(), "failed to create cluster")
 
@@ -76,11 +74,11 @@ var _ = Describe("Basic test of greptimedb cluster", Ordered, func() {
 
 		err = listCluster()
 		Expect(err).NotTo(HaveOccurred(), "failed to list cluster")
-
-		go func() {
-			forwardRequest(sig)
-		}()
-
+		/*
+			go func() {
+				forwardRequest(sig)
+			}()
+		*/
 		By("Connecting GreptimeDB")
 		var db *sql.DB
 		var conn *sql.Conn
@@ -141,7 +139,7 @@ var _ = Describe("Basic test of greptimedb cluster", Ordered, func() {
 		err = deleteCluster()
 		Expect(err).NotTo(HaveOccurred(), "failed to delete cluster")
 
-		sig = false
+		//		sig = false
 	})
 })
 
@@ -185,6 +183,7 @@ func deleteCluster() error {
 	return nil
 }
 
+/*
 func forwardRequest(sig bool) {
 	for {
 		if sig {
@@ -198,3 +197,4 @@ func forwardRequest(sig bool) {
 		}
 	}
 }
+*/
