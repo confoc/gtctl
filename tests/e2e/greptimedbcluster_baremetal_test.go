@@ -33,8 +33,10 @@ import (
 
 var _ = Describe("Basic test of greptimedb cluster in baremetal", Ordered, func() {
 	BeforeEach(func() {
+
 		err := checkAndClosePort(4002)
 		Expect(err).NotTo(HaveOccurred(), "failed to close port 4002")
+
 	})
 	It("Bootstrap cluster in baremteal", func() {
 		var err error
@@ -65,22 +67,18 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", Ordered, func(
 			fmt.Printf("Failed to copy log file content to stdout: %v\n", err)
 		}
 
-		if createcmd.Process != nil {
-			err = createcmd.Process.Kill()
-			Expect(err).NotTo(HaveOccurred(), "failed to kill create cluster process")
-		} else {
-			Fail("Process is not properly initialized")
-		}
+		err = createcmd.Process.Kill()
+		Expect(err).NotTo(HaveOccurred(), "failed to kill create cluster process")
 
 		err = createcmd.Wait()
 		if err != nil {
-			if exitErr, ok := err.(*exec.ExitError); ok {
-				GinkgoWriter.Printf("Process was killed with signal: %v,the process is terminated\n", exitErr)
+			if _, ok := err.(*exec.ExitError); ok {
+				fmt.Printf("the process is terminated\n")
 			} else {
-				GinkgoWriter.Printf("Process terminated with error: %v,failed to terminated the process\n", err)
+				fmt.Printf("Process terminated with error: %v,failed to terminated the process\n", err)
 			}
 		} else {
-			GinkgoWriter.Printf("failed to terminated the process\n")
+			fmt.Printf("failed to terminated the process\n")
 		}
 
 		err = deleteClusterinBaremetal()
@@ -115,6 +113,20 @@ func deleteClusterinBaremetal() error {
 	return nil
 }
 
+func checkAndClosePort(port int) error {
+	inUse, pid, err := checkPortInUse(port)
+	if err != nil {
+		return err
+	}
+
+	if inUse {
+		fmt.Printf("Port %d is in use by process %d, terminating process\n", port, pid)
+		return killProcess(pid)
+	}
+	fmt.Printf("Port %d is not in use\n", port)
+	return nil
+}
+
 func checkPortInUse(port int) (bool, int, error) {
 	cmd := exec.Command("lsof", "-i", fmt.Sprintf(":%d", port))
 	var out bytes.Buffer
@@ -142,25 +154,9 @@ func checkPortInUse(port int) (bool, int, error) {
 	return false, 0, nil
 }
 
-// killProcess kills a process by its PID
 func killProcess(pid int) error {
-	cmd := exec.Command("kill", "-9", strconv.Itoa(pid))
+	cmd := exec.Command("kill", strconv.Itoa(pid))
 	err := cmd.Run()
-	fmt.Println("the port 4002 is closed")
+	fmt.Println("the port is closed")
 	return err
-}
-
-// checkAndClosePort checks if a port is in use and closes it
-func checkAndClosePort(port int) error {
-	inUse, pid, err := checkPortInUse(port)
-	if err != nil {
-		return err
-	}
-
-	if inUse {
-		fmt.Printf("Port %d is in use by process %d, terminating process\n", port, pid)
-		return killProcess(pid)
-	}
-	fmt.Printf("Port %d is not in use\n", port)
-	return nil
 }
