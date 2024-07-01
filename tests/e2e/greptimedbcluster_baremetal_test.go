@@ -33,11 +33,8 @@ import (
 
 var _ = Describe("Basic test of greptimedb cluster in baremetal", Ordered, func() {
 	BeforeEach(func() {
-		ports := []int{4000, 4001, 4002, 4003}
-		for _, port := range ports {
-			err := checkAndClosePort(port)
-			Expect(err).NotTo(HaveOccurred(), fmt.Sprintf("failed to close port %d", port))
-		}
+		err := checkAndClosePort(4002)
+		Expect(err).NotTo(HaveOccurred(), fmt.Sprintf("failed to close port %d", 4002))
 	})
 	It("Bootstrap cluster in baremteal", func() {
 		var err error
