@@ -26,6 +26,7 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"k8s.io/klog/v2"
 )
 
 var _ = Describe("Basic test of greptimedb cluster in baremetal", Ordered, func() {
@@ -40,6 +41,10 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", Ordered, func(
 	It("Bootstrap cluster in baremteal", func() {
 		var err error
 		createcmd := newCreateClusterinBaremetalCommand()
+
+		go func() {
+			forwardRequestinbaremetal()
+		}()
 
 		err = createcmd.Start()
 		Expect(err).NotTo(HaveOccurred(), "failed to create cluster in baremetal")
@@ -161,3 +166,13 @@ func killProcess(pid int) error {
 	return err
 }
 */
+
+func forwardRequestinbaremetal() {
+	for {
+		cmd := exec.Command("kubectl", "port-forward", "svc/mydb-frontend", "4002:4002")
+		if err := cmd.Run(); err != nil {
+			klog.Errorf("Failed to port forward: %v", err)
+			return
+		}
+	}
+}

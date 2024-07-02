@@ -66,7 +66,6 @@ type TestData struct {
 var _ = Describe("Basic test of greptimedb cluster", Ordered, func() {
 	It("Bootstrap cluster", func() {
 		var err error
-		sig := true
 		err = createCluster()
 		Expect(err).NotTo(HaveOccurred(), "failed to create cluster")
 
@@ -77,7 +76,7 @@ var _ = Describe("Basic test of greptimedb cluster", Ordered, func() {
 		Expect(err).NotTo(HaveOccurred(), "failed to list cluster")
 
 		go func() {
-			forwardRequest(&sig)
+			forwardRequest()
 		}()
 
 		By("Connecting GreptimeDB")
@@ -87,7 +86,7 @@ var _ = Describe("Basic test of greptimedb cluster", Ordered, func() {
 		Eventually(func() error {
 			cfg := mysql.Config{
 				Net:                  "tcp",
-				Addr:                 "127.0.0.1:4002",
+				Addr:                 "127.0.0.1:4005",
 				User:                 "",
 				Passwd:               "",
 				DBName:               "",
@@ -139,8 +138,6 @@ var _ = Describe("Basic test of greptimedb cluster", Ordered, func() {
 
 		err = deleteCluster()
 		Expect(err).NotTo(HaveOccurred(), "failed to delete cluster")
-
-		sig = false
 	})
 })
 
@@ -184,15 +181,11 @@ func deleteCluster() error {
 	return nil
 }
 
-func forwardRequest(sig *bool) {
+func forwardRequest() {
 	for {
-		if *sig {
-			cmd := exec.Command("kubectl", "port-forward", "svc/mydb-frontend", "4002:4002")
-			if err := cmd.Run(); err != nil {
-				klog.Errorf("Failed to port forward: %v", err)
-				return
-			}
-		} else {
+		cmd := exec.Command("kubectl", "port-forward", "svc/mydb-frontend", "4002:4005")
+		if err := cmd.Run(); err != nil {
+			klog.Errorf("Failed to port forward: %v", err)
 			return
 		}
 	}
