@@ -87,7 +87,7 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", Ordered, func(
 			if err != nil {
 				return err
 			}
-			defer conn.Close()
+			//		defer conn.Close()
 			return nil
 		}, 30*time.Second, time.Second).ShouldNot(HaveOccurred())
 
