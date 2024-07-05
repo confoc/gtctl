@@ -102,7 +102,6 @@ var _ = Describe("Basic test of greptimedb cluster", Ordered, func() {
 			if err != nil {
 				return err
 			}
-
 			return nil
 		}, 30*time.Second, time.Second).ShouldNot(HaveOccurred())
 
@@ -135,6 +134,9 @@ var _ = Describe("Basic test of greptimedb cluster", Ordered, func() {
 			data = append(data, d)
 		}
 		Expect(len(data) == testRowIDNum).Should(BeTrue(), "get the wrong data from db")
+
+		err = conn.Close()
+		Expect(err).NotTo(HaveOccurred(), "failed to close SQL connection")
 
 		err = deleteCluster()
 		Expect(err).NotTo(HaveOccurred(), "failed to delete cluster")

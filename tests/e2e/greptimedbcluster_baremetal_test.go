@@ -121,6 +121,9 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", Ordered, func(
 		}
 		Expect(len(data) == testRowIDNum).Should(BeTrue(), "get the wrong data from db")
 
+		err = conn.Close()
+		Expect(err).NotTo(HaveOccurred(), "failed to close SQL connection")
+
 		err = createcmd.Process.Kill()
 		Expect(err).NotTo(HaveOccurred(), "failed to kill create cluster process")
 
