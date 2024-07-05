@@ -69,7 +69,7 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", Ordered, func(
 			if _, ok := err.(*exec.ExitError); ok {
 				fmt.Printf("the process is terminated\n")
 			} else {
-				fmt.Printf("Process terminated with error: %v,failed to terminated the process\n", err)
+				fmt.Printf("process terminated with error: %v,failed to terminated the process\n", err)
 			}
 		} else {
 			fmt.Printf("failed to terminated the process\n")
