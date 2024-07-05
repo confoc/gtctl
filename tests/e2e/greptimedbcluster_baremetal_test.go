@@ -17,6 +17,8 @@
 package e2e
 
 import (
+	"context"
+	"database/sql"
 	"fmt"
 	"io"
 	"net"
@@ -24,19 +26,12 @@ import (
 	"os/exec"
 	"time"
 
+	"github.com/go-sql-driver/mysql"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Basic test of greptimedb cluster in baremetal", Ordered, func() {
-	/*
-		BeforeEach(func() {
-
-			err := checkAndClosePort(4002)
-			Expect(err).NotTo(HaveOccurred(), "failed to close port 4002")
-
-		})
-	*/
 	It("Bootstrap cluster in baremteal", func() {
 		var err error
 		createcmd := newCreateClusterinBaremetalCommand()
@@ -80,6 +75,67 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", Ordered, func(
 			fmt.Printf("failed to terminated the process\n")
 		}
 
+		go func() {
+			forwardRequest()
+		}()
+
+		By("Connecting GreptimeDB")
+		var db *sql.DB
+		var conn *sql.Conn
+
+		Eventually(func() error {
+			cfg := mysql.Config{
+				Net:                  "tcp",
+				Addr:                 "127.0.0.1:4002",
+				User:                 "",
+				Passwd:               "",
+				DBName:               "",
+				AllowNativePasswords: true,
+			}
+
+			db, err = sql.Open("mysql", cfg.FormatDSN())
+			if err != nil {
+				return err
+			}
+
+			conn, err = db.Conn(context.TODO())
+			if err != nil {
+				return err
+			}
+			defer conn.Close()
+			return nil
+		}, 30*time.Second, time.Second).ShouldNot(HaveOccurred())
+
+		By("Execute SQL queries after connecting")
+
+		ctx, cancel := context.WithTimeout(context.Background(), defaultQueryTimeout)
+		defer cancel()
+
+		_, err = conn.ExecContext(ctx, createTableSQL)
+		Expect(err).NotTo(HaveOccurred(), "failed to create SQL table")
+
+		ctx, cancel = context.WithTimeout(context.Background(), defaultQueryTimeout)
+		defer cancel()
+		for rowID := 1; rowID <= testRowIDNum; rowID++ {
+			insertDataSQL := fmt.Sprintf(insertDataSQLStr, rowID, rowID)
+			_, err = conn.ExecContext(ctx, insertDataSQL)
+			Expect(err).NotTo(HaveOccurred(), "failed to insert data")
+		}
+
+		ctx, cancel = context.WithTimeout(context.Background(), defaultQueryTimeout)
+		defer cancel()
+		results, err := conn.QueryContext(ctx, selectDataSQL)
+		Expect(err).NotTo(HaveOccurred(), "failed to get data")
+
+		var data []TestData
+		for results.Next() {
+			var d TestData
+			err = results.Scan(&d.timestamp, &d.n, &d.rowID)
+			Expect(err).NotTo(HaveOccurred(), "failed to scan data that query from db")
+			data = append(data, d)
+		}
+		Expect(len(data) == testRowIDNum).Should(BeTrue(), "get the wrong data from db")
+
 		err = deleteClusterinBaremetal()
 		Expect(err).NotTo(HaveOccurred(), "failed to delete cluster in baremetal")
 	})
@@ -111,53 +167,3 @@ func deleteClusterinBaremetal() error {
 	}
 	return nil
 }
-
-/*
-func checkAndClosePort(port int) error {
-	inUse, pid, err := checkPortInUse(port)
-	if err != nil {
-		return err
-	}
-
-	if inUse {
-		fmt.Printf("Port %d is in use by process %d, terminating process\n", port, pid)
-		return killProcess(pid)
-	}
-	fmt.Printf("Port %d is not in use\n", port)
-	return nil
-}
-
-func checkPortInUse(port int) (bool, int, error) {
-	cmd := exec.Command("lsof", "-i", fmt.Sprintf(":%d", port))
-	var out bytes.Buffer
-	cmd.Stdout = &out
-	err := cmd.Run()
-	if err != nil {
-		return false, 0, err
-	}
-
-	if out.Len() == 0 {
-		return false, 0, nil
-	}
-
-	lines := strings.Split(out.String(), "\n")
-	if len(lines) > 1 {
-		fields := strings.Fields(lines[1])
-		if len(fields) > 1 {
-			pid, err := strconv.Atoi(fields[1])
-			if err != nil {
-				return false, 0, err
-			}
-			return true, pid, nil
-		}
-	}
-	return false, 0, nil
-}
-
-func killProcess(pid int) error {
-	cmd := exec.Command("kill", strconv.Itoa(pid))
-	err := cmd.Run()
-	fmt.Println("the port is closed")
-	return err
-}
-*/
