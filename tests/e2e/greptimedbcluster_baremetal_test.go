@@ -61,20 +61,6 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", Ordered, func(
 			fmt.Printf("Failed to copy log file content to stdout: %v\n", err)
 		}
 
-		err = createcmd.Process.Kill()
-		Expect(err).NotTo(HaveOccurred(), "failed to kill create cluster process")
-
-		err = createcmd.Wait()
-		if err != nil {
-			if _, ok := err.(*exec.ExitError); ok {
-				fmt.Printf("the process is terminated\n")
-			} else {
-				fmt.Printf("process terminated with error: %v,failed to terminated the process\n", err)
-			}
-		} else {
-			fmt.Printf("failed to terminated the process\n")
-		}
-
 		go func() {
 			forwardRequest()
 		}()
@@ -135,6 +121,20 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", Ordered, func(
 			data = append(data, d)
 		}
 		Expect(len(data) == testRowIDNum).Should(BeTrue(), "get the wrong data from db")
+
+		err = createcmd.Process.Kill()
+		Expect(err).NotTo(HaveOccurred(), "failed to kill create cluster process")
+
+		err = createcmd.Wait()
+		if err != nil {
+			if _, ok := err.(*exec.ExitError); ok {
+				fmt.Printf("the process is terminated\n")
+			} else {
+				fmt.Printf("process terminated with error: %v,failed to terminated the process\n", err)
+			}
+		} else {
+			fmt.Printf("failed to terminated the process\n")
+		}
 
 		err = deleteClusterinBaremetal()
 		Expect(err).NotTo(HaveOccurred(), "failed to delete cluster in baremetal")
