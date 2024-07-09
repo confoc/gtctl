@@ -95,12 +95,6 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", Ordered, func(
 
 		ctx, cancel := context.WithTimeout(context.Background(), defaultQueryTimeout)
 		defer cancel()
-
-		_, err = conn.ExecContext(ctx, createTableSQL)
-		Expect(err).NotTo(HaveOccurred(), "failed to create SQL table")
-
-		ctx, cancel = context.WithTimeout(context.Background(), defaultQueryTimeout)
-		defer cancel()
 		for rowID := 1; rowID <= testRowIDNum; rowID++ {
 			insertDataSQL := fmt.Sprintf(insertDataSQLStr, rowID, rowID)
 			_, err = conn.ExecContext(ctx, insertDataSQL)
