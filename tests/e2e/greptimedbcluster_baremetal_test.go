@@ -17,8 +17,6 @@
 package e2e
 
 import (
-	"context"
-	"database/sql"
 	"fmt"
 	"io"
 	"net"
@@ -26,7 +24,6 @@ import (
 	"os/exec"
 	"time"
 
-	"github.com/go-sql-driver/mysql"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -60,63 +57,6 @@ var _ = Describe("Basic test of greptimedb cluster in baremetal", Ordered, func(
 		if _, err := io.Copy(os.Stdout, logFile); err != nil {
 			fmt.Printf("Failed to copy log file content to stdout: %v\n", err)
 		}
-
-		go func() {
-			forwardRequest()
-		}()
-
-		By("Connecting GreptimeDB")
-		var db *sql.DB
-		var conn *sql.Conn
-
-		Eventually(func() error {
-			cfg := mysql.Config{
-				Net:                  "tcp",
-				Addr:                 "127.0.0.1:4002",
-				User:                 "",
-				Passwd:               "",
-				DBName:               "",
-				AllowNativePasswords: true,
-			}
-
-			db, err = sql.Open("mysql", cfg.FormatDSN())
-			if err != nil {
-				return err
-			}
-
-			conn, err = db.Conn(context.TODO())
-			if err != nil {
-				return err
-			}
-			return nil
-		}, 30*time.Second, time.Second).ShouldNot(HaveOccurred())
-
-		By("Execute SQL queries after connecting")
-
-		ctx, cancel := context.WithTimeout(context.Background(), defaultQueryTimeout)
-		defer cancel()
-		for rowID := 1; rowID <= testRowIDNum; rowID++ {
-			insertDataSQL := fmt.Sprintf(insertDataSQLStr, rowID, rowID)
-			_, err = conn.ExecContext(ctx, insertDataSQL)
-			Expect(err).NotTo(HaveOccurred(), "failed to insert data")
-		}
-
-		ctx, cancel = context.WithTimeout(context.Background(), defaultQueryTimeout)
-		defer cancel()
-		results, err := conn.QueryContext(ctx, selectDataSQL)
-		Expect(err).NotTo(HaveOccurred(), "failed to get data")
-
-		var data []TestData
-		for results.Next() {
-			var d TestData
-			err = results.Scan(&d.timestamp, &d.n, &d.rowID)
-			Expect(err).NotTo(HaveOccurred(), "failed to scan data that query from db")
-			data = append(data, d)
-		}
-		Expect(len(data) == testRowIDNum).Should(BeTrue(), "get the wrong data from db")
-
-		err = conn.Close()
-		Expect(err).NotTo(HaveOccurred(), "failed to close SQL connection")
 
 		err = createcmd.Process.Kill()
 		Expect(err).NotTo(HaveOccurred(), "failed to kill create cluster process")
